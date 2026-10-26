@@ -1,0 +1,10 @@
+name = "cagnotte-api"
+main = "src/index.js"
+compatibility_date = "2024-10-01"
+
+[[kv_namespaces]]
+binding = "CAGNOTTE_KV"
+id = "1ba2a48cfca24669be362e8c2e510ab9"
+
+[vars]
+ADMIN_KEY = "MaSuperCle2026_x7K9"

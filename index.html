@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#6366f1">
+  <title>Cagnotte • Budget Mensuel</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ============ ÉCRAN DE CONNEXION ============ -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-bg"></div>
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <h1>Cagnotte</h1>
+        <p>Budget partagé • Famille de 3</p>
+      </div>
+
+      <div id="setupAdmin" style="display:none;">
+        <h2>👑 Créer le compte Admin</h2>
+        <p class="login-sub">Première utilisation. Crée le compte du gestionnaire.</p>
+        <div class="form-group">
+          <label>Nom du gestionnaire</label>
+          <input type="text" id="setupNom" placeholder="Ex: Marie">
+        </div>
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <input type="password" id="setupPwd" placeholder="Choisis un mot de passe">
+        </div>
+        <div class="form-group">
+          <label>Confirmer le mot de passe</label>
+          <input type="password" id="setupPwd2" placeholder="Retape le mot de passe">
+        </div>
+        <div id="setupError" class="login-error" style="display:none;"></div>
+        <button class="btn primary login-btn" onclick="creerAdmin()">Créer le compte</button>
+      </div>
+
+      <div id="loginForm" style="display:none;">
+        <h2>Connexion</h2>
+        <p class="login-sub">Connecte-toi pour accéder à la cagnotte</p>
+        <div class="form-group">
+          <label>Qui es-tu ?</label>
+          <select id="loginMembre"></select>
+        </div>
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <input type="password" id="loginPwd" placeholder="Ton mot de passe">
+        </div>
+        <div id="loginError" class="login-error" style="display:none;"></div>
+        <button class="btn primary login-btn" onclick="tenterConnexion()">Se connecter</button>
+      </div>
+
+      <div class="login-footer">
+        <span>🔒 Synchronisé avec Cloudflare</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ APPLICATION ============ -->
+  <div id="app" style="display:none;">
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">Cagnotte</span>
+          <span class="logo-sub">Budget mensuel</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard', event)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg></span>
+          <span>Tableau de bord</span>
+        </button>
+        <button class="nav-item" data-page="planification" onclick="switchPage('planification', event)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          <span>Planification</span>
+        </button>
+        <button class="nav-item" data-page="courses" onclick="switchPage('courses', event)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+          <span>Liste de courses</span>
+        </button>
+        <button class="nav-item" data-page="paiements" onclick="switchPage('paiements', event)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></span>
+          <span>Cotisations</span>
+        </button>
+        <button class="nav-item" data-page="comparaison" onclick="switchPage('comparaison', event)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 6-6"/></svg></span>
+          <span>Comparaison</span>
+        </button>
+        <button class="nav-item" data-page="depenses" onclick="switchPage('depenses', event)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l-8 4v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg></span>
+          <span>Dépenses</span>
+        </button>
+        <button class="nav-item" data-page="historique" onclick="switchPage('historique', event)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+          <span>Historique</span>
+        </button>
+        <button class="nav-item" data-page="parametres" onclick="switchPage('parametres', event)">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+          <span>Paramètres</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-badge" id="userBadge"></div>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <span id="themeIcon">🌙</span>
+          <span id="themeText">Mode sombre</span>
+        </button>
+        <button class="theme-toggle logout-btn" onclick="deconnexion()">
+          <span>🚪</span><span>Déconnexion</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu" onclick="openSidebar()">☰</button>
+          <div class="month-nav">
+            <button class="month-btn" onclick="changerMois(-1)">◀</button>
+            <div class="month-display">
+              <span class="month-label" id="moisLabel">—</span>
+              <span class="month-year" id="anneeLabel">—</span>
+            </div>
+            <button class="month-btn" onclick="changerMois(1)">▶</button>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button class="icon-btn" onclick="rafraichirDepuisServeur()" title="Rafraîchir les données">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+          <button class="icon-btn admin-only" onclick="ouvrirModalPaiement()" title="Cotisation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
+          </button>
+          <button class="icon-btn admin-only" onclick="ouvrirModalDepense()" title="Dépense">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- DASHBOARD -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-header">
+          <h1>Tableau de bord</h1>
+          <p>Aperçu du budget et des cotisations du mois</p>
+        </div>
+        <div id="etatPlanification"></div>
+        <div id="dashboardContent" style="display:none;">
+          <div class="hero">
+            <div class="hero-bg"></div>
+            <div class="hero-content">
+              <div class="hero-label">Solde de la cagnotte</div>
+              <div class="hero-value" id="soldeCagnotte">0 F</div>
+              <div class="hero-stats">
+                <div class="hero-stat"><span class="hero-stat-icon">📥</span><div><div class="hero-stat-label">Total versé</div><div class="hero-stat-value" id="totalVerse">0 F</div></div></div>
+                <div class="hero-stat"><span class="hero-stat-icon">📤</span><div><div class="hero-stat-label">Total dépensé</div><div class="hero-stat-value" id="totalDepense">0 F</div></div></div>
+                <div class="hero-stat"><span class="hero-stat-icon">📅</span><div><div class="hero-stat-label">Ce mois-ci</div><div class="hero-stat-value" id="soldeMois">0 F</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon purple">📋</div><div class="stat-info"><div class="stat-label">Budget planifié</div><div class="stat-value" id="statBudget">0 F</div><div class="stat-sub" id="statBudgetSub">—</div></div></div>
+            <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-info"><div class="stat-label">Versé ce mois</div><div class="stat-value" id="statVerseMois">0 F</div><div class="stat-sub" id="statVerseMoisSub">—</div></div></div>
+            <div class="stat-card"><div class="stat-icon orange">⏳</div><div class="stat-info"><div class="stat-label">Reste à percevoir</div><div class="stat-value" id="statReste">0 F</div><div class="stat-sub" id="statResteSub">—</div></div></div>
+            <div class="stat-card"><div class="stat-icon red">🛒</div><div class="stat-info"><div class="stat-label">Dépensé ce mois</div><div class="stat-value" id="statDepenseMois">0 F</div><div class="stat-sub" id="statDepenseMoisSub">—</div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>🎯 Progression du mois</h2><span class="badge" id="badgeProgression">0%</span></div>
+            <div class="progress-wrap">
+              <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+              <div class="progress-labels"><span id="progressVerse">0 F versé</span><span id="progressObjectif">Objectif : 0 F</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>📋 Achats prévus</h2><span class="badge" id="badgeAchats">0 article(s)</span></div>
+            <div id="achatsPrevueContainer"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>👥 Statut des cotisants</h2></div>
+            <div class="membres-grid" id="membresContainer"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PLANIFICATION -->
+      <section class="page" id="page-planification">
+        <div class="page-header">
+          <h1>Planification</h1>
+          <p>Liste ce que vous allez consommer ce mois</p>
+        </div>
+
+        <div class="card admin-only" id="cardAjoutArticle">
+          <div class="card-header">
+            <h2>🛒 Ajouter un article</h2>
+            <button class="btn secondary small" onclick="ouvrirModalGestionCategories()">⚙️ Catégories</button>
+          </div>
+          <div class="achat-form">
+            <div class="achat-form-row">
+              <div class="form-group" style="flex:2; min-width:180px;">
+                <label>Article</label>
+                <input type="text" id="achatNom" placeholder="Ex: Riz, Huile, Savon..." list="listeArticles">
+                <datalist id="listeArticles"></datalist>
+              </div>
+              <div class="form-group" style="flex:1; min-width:120px;">
+                <label>Catégorie</label>
+                <select id="achatCategorie"></select>
+              </div>
+              <div class="form-group" style="flex:1; min-width:110px;">
+                <label>Magasin</label>
+                <select id="achatMagasin"></select>
+              </div>
+            </div>
+            <div class="achat-form-row" style="margin-top:12px;">
+              <div class="form-group" style="flex:1; min-width:110px;">
+                <label>Prix unitaire (F)</label>
+                <input type="number" id="achatPrix" placeholder="Ex: 8000" min="0" inputmode="numeric">
+              </div>
+              <div class="form-group" style="flex:1; min-width:110px;">
+                <label>Quantité</label>
+                <input type="number" id="achatQte" placeholder="Ex: 5" min="0" step="0.5" inputmode="decimal" value="1">
+              </div>
+              <div class="form-group" style="flex:0 0 auto; justify-content:flex-end; min-width:120px;">
+                <button class="btn primary" onclick="ajouterAchat()">+ Ajouter</button>
+              </div>
+            </div>
+          </div>
+          <div id="achatsListContainer" style="margin-top:20px;"></div>
+        </div>
+
+        <div class="card" id="cardListeRO" style="display:none;">
+          <div class="card-header"><h2>📋 Liste des achats</h2><span class="badge" id="badgePlanAchats">0 article(s)</span></div>
+          <div id="achatsListContainerRO"></div>
+        </div>
+
+        <div class="card">
+          <div class="total-band">
+            <div class="total-band-left">
+              <div class="total-band-label">💰 Budget total du mois</div>
+              <div class="total-band-sub" id="totalArticles">0 article(s)</div>
+            </div>
+            <div class="total-band-value" id="totalBudget">0 F</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h2>👥 Répartition de la cotisation</h2></div>
+          <div class="form-group admin-only">
+            <label>Nombre de personnes qui cotisent</label>
+            <input type="number" id="planNbPersonnes" min="1" max="20" inputmode="numeric" value="3">
+          </div>
+          <div class="calc-preview">
+            <div class="calc-preview-label">💡 Cotisation par personne :</div>
+            <div class="calc-preview-value" id="calcPreviewValue">0 F</div>
+            <div class="calc-preview-formule" id="calcPreviewFormule">—</div>
+          </div>
+          <div class="form-group admin-only">
+            <label>Noms des personnes (optionnel)</label>
+            <div id="membresNomsContainer"></div>
+          </div>
+          <div class="btn-row admin-only">
+            <button class="btn primary" onclick="enregistrerPlanification()">💾 Enregistrer la planification</button>
+            <button class="btn danger" onclick="reinitialiserPlanMois()" id="btnSupprimerPlan" style="display:none;">🗑 Supprimer</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- COURSES -->
+      <section class="page" id="page-courses">
+        <div class="page-header">
+          <h1>Liste de courses</h1>
+          <p id="coursesSubtitle">Coche ce que tu as déjà acheté</p>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2>🛍️ Ma liste</h2>
+            <button class="btn secondary small" onclick="window.print()">🖨️ Imprimer</button>
+          </div>
+          <div class="courses-stats" id="coursesStats"></div>
+          <div id="coursesContainer"></div>
+        </div>
+      </section>
+
+      <!-- PAIEMENTS -->
+      <section class="page" id="page-paiements">
+        <div class="page-header">
+          <h1>Cotisations</h1>
+          <p>Qui a payé sa part ce mois</p>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2>💵 Cotisations du mois</h2>
+            <button class="btn primary admin-only" onclick="ouvrirModalPaiement()">+ Ajouter</button>
+          </div>
+          <p class="muted" id="paiementsInfo">—</p>
+          <div id="paiementsContainer"></div>
+        </div>
+      </section>
+
+      <!-- COMPARAISON -->
+      <section class="page" id="page-comparaison">
+        <div class="page-header">
+          <h1>Comparaison</h1>
+          <p>Achats prévus vs dépenses réelles</p>
+        </div>
+        <div class="comp-grid" id="compGrid"></div>
+        <div class="card">
+          <div class="card-header"><h2>📊 Détail par article</h2></div>
+          <div id="compTable"></div>
+        </div>
+      </section>
+
+      <!-- DEPENSES -->
+      <section class="page" id="page-depenses">
+        <div class="page-header">
+          <h1>Dépenses</h1>
+          <p>Achats réels effectués</p>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2>🛒 Dépenses</h2>
+            <button class="btn primary admin-only" onclick="ouvrirModalDepense()">+ Ajouter</button>
+          </div>
+          <div id="depensesContainer"></div>
+        </div>
+      </section>
+
+      <!-- HISTORIQUE -->
+      <section class="page" id="page-historique">
+        <div class="page-header">
+          <h1>Historique</h1>
+          <p>Tous les mouvements</p>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>📜 Historique complet</h2></div>
+          <div id="historiqueContainer"></div>
+        </div>
+      </section>
+
+      <!-- PARAMETRES -->
+      <section class="page" id="page-parametres">
+        <div class="page-header">
+          <h1>Paramètres</h1>
+          <p>Configuration et gestion des comptes</p>
+        </div>
+
+        <div class="card admin-only">
+          <div class="card-header">
+            <h2>👥 Comptes membres</h2>
+            <button class="btn primary small" onclick="ouvrirModalAjoutMembre()">+ Ajouter un membre</button>
+          </div>
+          <div id="paramMembresList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h2>🔑 Mon mot de passe</h2></div>
+          <div class="form-group">
+            <label>Mot de passe actuel</label>
+            <input type="password" id="pwdActuel">
+          </div>
+          <div class="form-group">
+            <label>Nouveau mot de passe</label>
+            <input type="password" id="pwdNouveau">
+          </div>
+          <div class="form-group">
+            <label>Confirmer</label>
+            <input type="password" id="pwdNouveau2">
+          </div>
+          <div class="btn-row">
+            <button class="btn primary" onclick="changerMonMotDePasse()">💾 Changer</button>
+          </div>
+        </div>
+
+        <div class="card admin-only">
+          <div class="card-header"><h2>📦 Catégories</h2><button class="btn primary small" onclick="ajouterCategorie()">+ Ajouter</button></div>
+          <div id="paramCategoriesList"></div>
+        </div>
+
+        <div class="card admin-only">
+          <div class="card-header"><h2>🏪 Magasins</h2><button class="btn primary small" onclick="ajouterMagasin()">+ Ajouter</button></div>
+          <div id="paramMagasinsList"></div>
+        </div>
+
+        <div class="card admin-only">
+          <div class="card-header"><h2>💾 Données</h2></div>
+          <p class="muted">Sauvegarde ou restaure les données.</p>
+          <div class="btn-row">
+            <button class="btn secondary" onclick="exporterDonnees()">📤 Exporter</button>
+            <label class="btn secondary" style="cursor:pointer;">📥 Importer<input type="file" accept=".json" onchange="importerDonnees(event)" style="display:none;"></label>
+            <button class="btn danger" onclick="reinitialiserTout()">⚠️ Réinitialiser</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="modalPaiement" onclick="fermerModal(event, 'modalPaiement')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header"><h3>💵 Nouvelle cotisation</h3><button class="modal-close" onclick="fermerModalDirect('modalPaiement')">✕</button></div>
+        <div class="modal-body">
+          <div class="form-group"><label>Personne</label><select id="modalPayMembre"></select></div>
+          <div class="form-group"><label>Montant (F)</label><input type="number" id="modalPayMontant" min="0" placeholder="Ex: 20000" inputmode="numeric"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn secondary" onclick="fermerModalDirect('modalPaiement')">Annuler</button>
+          <button class="btn primary" onclick="validerPaiement()">Confirmer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modalDepense" onclick="fermerModal(event, 'modalDepense')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header"><h3>🛒 Nouvelle dépense</h3><button class="modal-close" onclick="fermerModalDirect('modalDepense')">✕</button></div>
+        <div class="modal-body">
+          <div class="form-group"><label>Description</label><input type="text" id="modalDepDesc" placeholder="Ex: Riz 5kg, huile..."></div>
+          <div class="form-group"><label>Montant (F)</label><input type="number" id="modalDepMontant" min="0" placeholder="Ex: 3500" inputmode="numeric"></div>
+          <div class="form-group"><label>Date</label><input type="date" id="modalDepDate"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn secondary" onclick="fermerModalDirect('modalDepense')">Annuler</button>
+          <button class="btn primary" onclick="validerDepense()">Confirmer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modalEditAchat" onclick="fermerModal(event, 'modalEditAchat')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header"><h3>✏️ Modifier l'article</h3><button class="modal-close" onclick="fermerModalDirect('modalEditAchat')">✕</button></div>
+        <div class="modal-body">
+          <input type="hidden" id="editAchatId">
+          <div class="form-group"><label>Article</label><input type="text" id="editAchatNom"></div>
+          <div class="grid" style="grid-template-columns:1fr 1fr;">
+            <div class="form-group"><label>Catégorie</label><select id="editAchatCategorie"></select></div>
+            <div class="form-group"><label>Magasin</label><select id="editAchatMagasin"></select></div>
+          </div>
+          <div class="grid" style="grid-template-columns:1fr 1fr;">
+            <div class="form-group"><label>Prix (F)</label><input type="number" id="editAchatPrix" min="0" inputmode="numeric"></div>
+            <div class="form-group"><label>Quantité</label><input type="number" id="editAchatQte" min="0" step="0.5" inputmode="decimal"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn secondary" onclick="fermerModalDirect('modalEditAchat')">Annuler</button>
+          <button class="btn primary" onclick="validerEditAchat()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modalAjoutMembre" onclick="fermerModal(event, 'modalAjoutMembre')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header"><h3>👥 Ajouter un membre</h3><button class="modal-close" onclick="fermerModalDirect('modalAjoutMembre')">✕</button></div>
+        <div class="modal-body">
+          <div class="form-group"><label>Nom</label><input type="text" id="newMembreNom" placeholder="Ex: Paul"></div>
+          <div class="form-group"><label>Mot de passe</label><input type="password" id="newMembrePwd" placeholder="Choisis un mot de passe"></div>
+          <div class="form-group"><label>Rôle</label>
+            <select id="newMembreRole">
+              <option value="membre">👤 Membre (lecture seule)</option>
+              <option value="admin">👑 Admin (tous droits)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn secondary" onclick="fermerModalDirect('modalAjoutMembre')">Annuler</button>
+          <button class="btn primary" onclick="validerAjoutMembre()">Ajouter</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modalResetPwd" onclick="fermerModal(event, 'modalResetPwd')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header"><h3>🔑 Réinitialiser le mot de passe</h3><button class="modal-close" onclick="fermerModalDirect('modalResetPwd')">✕</button></div>
+        <div class="modal-body">
+          <input type="hidden" id="resetPwdMembreId">
+          <p class="muted" id="resetPwdInfo"></p>
+          <div class="form-group"><label>Nouveau mot de passe</label><input type="password" id="resetPwdNouveau"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn secondary" onclick="fermerModalDirect('modalResetPwd')">Annuler</button>
+          <button class="btn primary" onclick="validerResetPwd()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modalCategories" onclick="fermerModal(event, 'modalCategories')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header"><h3>⚙️ Catégories</h3><button class="modal-close" onclick="fermerModalDirect('modalCategories')">✕</button></div>
+        <div class="modal-body">
+          <p class="muted">Va dans Paramètres pour gérer les catégories et magasins.</p>
+          <button class="btn primary" onclick="fermerModalDirect('modalCategories'); switchPage('parametres');">Aller aux paramètres</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
